@@ -1,4 +1,4 @@
-package game
+package items
 
 type Item struct {
 	itemType string
