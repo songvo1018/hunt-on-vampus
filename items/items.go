@@ -1,8 +1,10 @@
 package items
 
+import "labirynth/game/entity"
+
 type Item struct {
-	itemType string
-	impact   int
+	entity.Entity
+	impact int
 }
 
 type ItemLabyrinthProperties struct {
