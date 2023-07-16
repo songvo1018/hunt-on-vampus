@@ -1,0 +1,31 @@
+entities:
+- Game
+  - Environment
+    - LabyrinthProperties
+    - UserLabyrinthLocation
+    - NPCLabyrinthLocation
+    - ItemLabyrinthsProperties
+        - ItemsPositionMap
+        - ItemTypes
+  - Actors
+      - User
+      - NPC
+          + friendly
+          + aggressive
+      - Event:
+          - attack
+          - move
+          - wait
+          - stun
+          - observe
+          - hide
+      - Items
+          - Heal
+          - Wall
+          - Boost
+              + HP
+              + Strength
+          - Poison
+              + Self
+              + Directed/Assigned
+  -
