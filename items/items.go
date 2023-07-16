@@ -6,5 +6,5 @@ type Item struct {
 }
 
 type ItemLabyrinthProperties struct {
-	items []Item
+	Items []Item
 }

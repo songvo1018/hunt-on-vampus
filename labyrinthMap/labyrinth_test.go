@@ -1,20 +1,21 @@
-package game
+package labirinthMap
 
 import (
+	"labirynth/game/items"
 	"reflect"
 	"testing"
 )
 
 func TestLabyrinthEnvironment_changePosition(t *testing.T) {
 	type fields struct {
-		labyrinthProperties     LabyrinthProperties
-		userLabyrinthLocation   LabyrinthMapLocation
-		npcLabyrinthLocation    LabyrinthMapLocation
-		itemLabyrinthProperties ItemLabyrinthProperties
+		labyrinthProperties     MapProperties
+		userLabyrinthLocation   MapLocation
+		npcLabyrinthLocation    MapLocation
+		itemLabyrinthProperties items.ItemLabyrinthProperties
 	}
 	type args struct {
 		target      string
-		newLocation LabyrinthMapLocation
+		newLocation MapLocation
 	}
 	tests := []struct {
 		name    string
@@ -27,7 +28,7 @@ func TestLabyrinthEnvironment_changePosition(t *testing.T) {
 		{
 			name: "go to empty place",
 			fields: fields{
-				labyrinthProperties: LabyrinthProperties{
+				labyrinthProperties: MapProperties{
 					mapLongitude: map[int]bool{
 						1: true,
 						2: false,
@@ -43,20 +44,20 @@ func TestLabyrinthEnvironment_changePosition(t *testing.T) {
 						5: false,
 					},
 				},
-				userLabyrinthLocation:   LabyrinthMapLocation{1, 1},
-				npcLabyrinthLocation:    LabyrinthMapLocation{5, 5},
-				itemLabyrinthProperties: ItemLabyrinthProperties{items: nil},
+				userLabyrinthLocation:   MapLocation{1, 1},
+				npcLabyrinthLocation:    MapLocation{5, 5},
+				itemLabyrinthProperties: items.ItemLabyrinthProperties{Items: nil},
 			},
 			args: args{
 				target:      "user",
-				newLocation: LabyrinthMapLocation{3, 4}},
+				newLocation: MapLocation{3, 4}},
 			want:    true,
 			wantErr: false,
 		},
 		{
 			name: "go to busy place",
 			fields: fields{
-				labyrinthProperties: LabyrinthProperties{
+				labyrinthProperties: MapProperties{
 					mapLongitude: map[int]bool{
 						1: true,
 						2: false,
@@ -71,20 +72,20 @@ func TestLabyrinthEnvironment_changePosition(t *testing.T) {
 						4: false,
 						5: false,
 					}},
-				userLabyrinthLocation:   LabyrinthMapLocation{1, 1},
-				npcLabyrinthLocation:    LabyrinthMapLocation{5, 5},
-				itemLabyrinthProperties: ItemLabyrinthProperties{items: nil},
+				userLabyrinthLocation:   MapLocation{1, 1},
+				npcLabyrinthLocation:    MapLocation{5, 5},
+				itemLabyrinthProperties: items.ItemLabyrinthProperties{Items: nil},
 			},
 			args: args{
 				target:      "user",
-				newLocation: LabyrinthMapLocation{1, 1}},
+				newLocation: MapLocation{1, 1}},
 			want:    false,
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := LabyrinthEnvironment{
+			l := MapEnvironment{
 				labyrinthProperties:     tt.fields.labyrinthProperties,
 				userLabyrinthLocation:   tt.fields.userLabyrinthLocation,
 				npcLabyrinthLocation:    tt.fields.npcLabyrinthLocation,
@@ -109,10 +110,10 @@ func TestLabyrinthEnvironment_changePosition(t *testing.T) {
 
 func TestLabyrinthEnvironment_getPosition1(t *testing.T) {
 	type fields struct {
-		labyrinthProperties     LabyrinthProperties
-		userLabyrinthLocation   LabyrinthMapLocation
-		npcLabyrinthLocation    LabyrinthMapLocation
-		itemLabyrinthProperties ItemLabyrinthProperties
+		labyrinthProperties     MapProperties
+		userLabyrinthLocation   MapLocation
+		npcLabyrinthLocation    MapLocation
+		itemLabyrinthProperties items.ItemLabyrinthProperties
 	}
 	type args struct {
 		target string
@@ -121,14 +122,14 @@ func TestLabyrinthEnvironment_getPosition1(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    LabyrinthMapLocation
+		want    MapLocation
 		wantErr bool
 	}{
 		// TODO: Add test cases.
 		{
 			name: "get user position",
 			fields: fields{
-				labyrinthProperties: LabyrinthProperties{
+				labyrinthProperties: MapProperties{
 					mapLongitude: map[int]bool{
 						1: true,
 						2: false,
@@ -143,20 +144,20 @@ func TestLabyrinthEnvironment_getPosition1(t *testing.T) {
 						4: false,
 						5: false,
 					}},
-				userLabyrinthLocation:   LabyrinthMapLocation{1, 1},
-				npcLabyrinthLocation:    LabyrinthMapLocation{5, 5},
-				itemLabyrinthProperties: ItemLabyrinthProperties{items: nil},
+				userLabyrinthLocation:   MapLocation{1, 1},
+				npcLabyrinthLocation:    MapLocation{5, 5},
+				itemLabyrinthProperties: items.ItemLabyrinthProperties{Items: nil},
 			},
 			args: args{
 				target: "user",
 			},
-			want:    LabyrinthMapLocation{1, 1},
+			want:    MapLocation{1, 1},
 			wantErr: false,
 		},
 		{
 			name: "get nps position",
 			fields: fields{
-				labyrinthProperties: LabyrinthProperties{
+				labyrinthProperties: MapProperties{
 					mapLongitude: map[int]bool{
 						1: true,
 						2: false,
@@ -171,20 +172,20 @@ func TestLabyrinthEnvironment_getPosition1(t *testing.T) {
 						4: false,
 						5: false,
 					}},
-				userLabyrinthLocation:   LabyrinthMapLocation{1, 1},
-				npcLabyrinthLocation:    LabyrinthMapLocation{5, 5},
-				itemLabyrinthProperties: ItemLabyrinthProperties{items: nil},
+				userLabyrinthLocation:   MapLocation{1, 1},
+				npcLabyrinthLocation:    MapLocation{5, 5},
+				itemLabyrinthProperties: items.ItemLabyrinthProperties{Items: nil},
 			},
 			args: args{
 				target: "npc",
 			},
-			want:    LabyrinthMapLocation{5, 5},
+			want:    MapLocation{5, 5},
 			wantErr: false,
 		},
 		{
 			name: "pseudovampus position err",
 			fields: fields{
-				labyrinthProperties: LabyrinthProperties{
+				labyrinthProperties: MapProperties{
 					mapLongitude: map[int]bool{
 						1: true,
 						2: false,
@@ -199,20 +200,20 @@ func TestLabyrinthEnvironment_getPosition1(t *testing.T) {
 						4: false,
 						5: false,
 					}},
-				userLabyrinthLocation:   LabyrinthMapLocation{1, 1},
-				npcLabyrinthLocation:    LabyrinthMapLocation{5, 5},
-				itemLabyrinthProperties: ItemLabyrinthProperties{items: nil},
+				userLabyrinthLocation:   MapLocation{1, 1},
+				npcLabyrinthLocation:    MapLocation{5, 5},
+				itemLabyrinthProperties: items.ItemLabyrinthProperties{Items: nil},
 			},
 			args: args{
 				target: "pseudovampus",
 			},
-			want:    LabyrinthMapLocation{},
+			want:    MapLocation{},
 			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := LabyrinthEnvironment{
+			l := MapEnvironment{
 				labyrinthProperties:     tt.fields.labyrinthProperties,
 				userLabyrinthLocation:   tt.fields.userLabyrinthLocation,
 				npcLabyrinthLocation:    tt.fields.npcLabyrinthLocation,
