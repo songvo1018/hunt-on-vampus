@@ -3,6 +3,7 @@ package labirinthMap
 import (
 	"labirynth/game/entity"
 	"labirynth/game/items"
+	"labirynth/game/location"
 	"reflect"
 	"testing"
 )
@@ -10,13 +11,13 @@ import (
 func TestLabyrinthEnvironment_changePosition(t *testing.T) {
 	type fields struct {
 		labyrinthProperties     MapProperties
-		userLabyrinthLocation   MapLocation
-		npcLabyrinthLocation    MapLocation
+		userLabyrinthLocation   location.MapLocation
+		npcLabyrinthLocation    location.MapLocation
 		itemLabyrinthProperties items.ItemLabyrinthProperties
 	}
 	type args struct {
 		target      string
-		newLocation MapLocation
+		newLocation location.MapLocation
 	}
 	tests := []struct {
 		name    string
@@ -30,28 +31,16 @@ func TestLabyrinthEnvironment_changePosition(t *testing.T) {
 			name: "go to empty place",
 			fields: fields{
 				labyrinthProperties: MapProperties{
-					mapLongitude: map[int]entity.Entity{
-						1: entity.Wall,
-						2: entity.Pass,
-						3: entity.Pass,
-						4: entity.Pass,
-						5: entity.Pass,
-					},
-					mapLatitude: map[int]entity.Entity{
-						1: entity.Wall,
-						2: entity.Pass,
-						3: entity.Pass,
-						4: entity.Pass,
-						5: entity.Pass,
-					},
+					GridSize:      25,
+					EntitiesOnMap: map[location.MapLocation]entity.Entity{},
 				},
-				userLabyrinthLocation:   MapLocation{1, 1},
-				npcLabyrinthLocation:    MapLocation{5, 5},
+				userLabyrinthLocation:   location.MapLocation{X: 1, Y: 1},
+				npcLabyrinthLocation:    location.MapLocation{X: 5, Y: 5},
 				itemLabyrinthProperties: items.ItemLabyrinthProperties{Items: nil},
 			},
 			args: args{
 				target:      "user",
-				newLocation: MapLocation{3, 4}},
+				newLocation: location.MapLocation{X: 3, Y: 4}},
 			want:    true,
 			wantErr: false,
 		},
@@ -59,27 +48,17 @@ func TestLabyrinthEnvironment_changePosition(t *testing.T) {
 			name: "go to busy place",
 			fields: fields{
 				labyrinthProperties: MapProperties{
-					mapLongitude: map[int]entity.Entity{
-						1: entity.Wall,
-						2: entity.Pass,
-						3: entity.Pass,
-						4: entity.Pass,
-						5: entity.Pass,
-					},
-					mapLatitude: map[int]entity.Entity{
-						1: entity.Wall,
-						2: entity.Pass,
-						3: entity.Pass,
-						4: entity.Pass,
-						5: entity.Pass,
+					GridSize: 25,
+					EntitiesOnMap: map[location.MapLocation]entity.Entity{
+						location.MapLocation{X: 1, Y: 1}: entity.WallEntity,
 					}},
-				userLabyrinthLocation:   MapLocation{1, 1},
-				npcLabyrinthLocation:    MapLocation{5, 5},
+				userLabyrinthLocation:   location.MapLocation{X: 1, Y: 1},
+				npcLabyrinthLocation:    location.MapLocation{X: 5, Y: 5},
 				itemLabyrinthProperties: items.ItemLabyrinthProperties{Items: nil},
 			},
 			args: args{
 				target:      "user",
-				newLocation: MapLocation{1, 1}},
+				newLocation: location.MapLocation{X: 1, Y: 1}},
 			want:    false,
 			wantErr: true,
 		},
@@ -87,27 +66,15 @@ func TestLabyrinthEnvironment_changePosition(t *testing.T) {
 			name: "go to half busy place",
 			fields: fields{
 				labyrinthProperties: MapProperties{
-					mapLongitude: map[int]entity.Entity{
-						1: entity.Wall,
-						2: entity.Wall,
-						3: entity.Pass,
-						4: entity.Pass,
-						5: entity.Pass,
-					},
-					mapLatitude: map[int]entity.Entity{
-						1: entity.Wall,
-						2: entity.Pass,
-						3: entity.Pass,
-						4: entity.Pass,
-						5: entity.Pass,
-					}},
-				userLabyrinthLocation:   MapLocation{1, 1},
-				npcLabyrinthLocation:    MapLocation{5, 5},
+					GridSize:      25,
+					EntitiesOnMap: map[location.MapLocation]entity.Entity{}},
+				userLabyrinthLocation:   location.MapLocation{X: 1, Y: 1},
+				npcLabyrinthLocation:    location.MapLocation{X: 5, Y: 5},
 				itemLabyrinthProperties: items.ItemLabyrinthProperties{Items: nil},
 			},
 			args: args{
 				target:      "user",
-				newLocation: MapLocation{2, 2}},
+				newLocation: location.MapLocation{X: 2, Y: 2}},
 			want:    true,
 			wantErr: false,
 		},
@@ -120,6 +87,8 @@ func TestLabyrinthEnvironment_changePosition(t *testing.T) {
 				npcLabyrinthLocation:    tt.fields.npcLabyrinthLocation,
 				itemLabyrinthProperties: tt.fields.itemLabyrinthProperties,
 			}
+
+			l.labyrinthProperties.fillEmptyLocation()
 			changedLocation, err := l.ChangePosition(tt.args.target, tt.args.newLocation)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("changePosition() error = %v, wantErr %v", err, tt.wantErr)
@@ -140,8 +109,8 @@ func TestLabyrinthEnvironment_changePosition(t *testing.T) {
 func TestLabyrinthEnvironment_getPosition1(t *testing.T) {
 	type fields struct {
 		labyrinthProperties     MapProperties
-		userLabyrinthLocation   MapLocation
-		npcLabyrinthLocation    MapLocation
+		userLabyrinthLocation   location.MapLocation
+		npcLabyrinthLocation    location.MapLocation
 		itemLabyrinthProperties items.ItemLabyrinthProperties
 	}
 	type args struct {
@@ -151,7 +120,7 @@ func TestLabyrinthEnvironment_getPosition1(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    MapLocation
+		want    location.MapLocation
 		wantErr bool
 	}{
 		// TODO: Add test cases.
@@ -159,84 +128,48 @@ func TestLabyrinthEnvironment_getPosition1(t *testing.T) {
 			name: "get user position",
 			fields: fields{
 				labyrinthProperties: MapProperties{
-					mapLongitude: map[int]entity.Entity{
-						1: entity.Wall,
-						2: entity.Pass,
-						3: entity.Pass,
-						4: entity.Pass,
-						5: entity.Pass,
-					},
-					mapLatitude: map[int]entity.Entity{
-						1: entity.Wall,
-						2: entity.Pass,
-						3: entity.Pass,
-						4: entity.Pass,
-						5: entity.Pass,
-					}},
-				userLabyrinthLocation:   MapLocation{1, 1},
-				npcLabyrinthLocation:    MapLocation{5, 5},
+					GridSize:      25,
+					EntitiesOnMap: map[location.MapLocation]entity.Entity{}},
+				userLabyrinthLocation:   location.MapLocation{X: 1, Y: 1},
+				npcLabyrinthLocation:    location.MapLocation{X: 5, Y: 5},
 				itemLabyrinthProperties: items.ItemLabyrinthProperties{Items: nil},
 			},
 			args: args{
 				target: "user",
 			},
-			want:    MapLocation{1, 1},
+			want:    location.MapLocation{X: 1, Y: 1},
 			wantErr: false,
 		},
 		{
 			name: "get nps position",
 			fields: fields{
 				labyrinthProperties: MapProperties{
-					mapLongitude: map[int]entity.Entity{
-						1: entity.Wall,
-						2: entity.Pass,
-						3: entity.Pass,
-						4: entity.Pass,
-						5: entity.Pass,
-					},
-					mapLatitude: map[int]entity.Entity{
-						1: entity.Wall,
-						2: entity.Pass,
-						3: entity.Pass,
-						4: entity.Pass,
-						5: entity.Pass,
-					}},
-				userLabyrinthLocation:   MapLocation{1, 1},
-				npcLabyrinthLocation:    MapLocation{5, 5},
+					GridSize:      25,
+					EntitiesOnMap: map[location.MapLocation]entity.Entity{}},
+				userLabyrinthLocation:   location.MapLocation{X: 1, Y: 1},
+				npcLabyrinthLocation:    location.MapLocation{X: 5, Y: 5},
 				itemLabyrinthProperties: items.ItemLabyrinthProperties{Items: nil},
 			},
 			args: args{
 				target: "npc",
 			},
-			want:    MapLocation{5, 5},
+			want:    location.MapLocation{X: 5, Y: 5},
 			wantErr: false,
 		},
 		{
 			name: "pseudovampus position err",
 			fields: fields{
 				labyrinthProperties: MapProperties{
-					mapLongitude: map[int]entity.Entity{
-						1: entity.Wall,
-						2: entity.Pass,
-						3: entity.Pass,
-						4: entity.Pass,
-						5: entity.Pass,
-					},
-					mapLatitude: map[int]entity.Entity{
-						1: entity.Wall,
-						2: entity.Pass,
-						3: entity.Pass,
-						4: entity.Pass,
-						5: entity.Pass,
-					}},
-				userLabyrinthLocation:   MapLocation{1, 1},
-				npcLabyrinthLocation:    MapLocation{5, 5},
+					GridSize:      25,
+					EntitiesOnMap: map[location.MapLocation]entity.Entity{}},
+				userLabyrinthLocation:   location.MapLocation{X: 1, Y: 1},
+				npcLabyrinthLocation:    location.MapLocation{X: 5, Y: 5},
 				itemLabyrinthProperties: items.ItemLabyrinthProperties{Items: nil},
 			},
 			args: args{
 				target: "pseudovampus",
 			},
-			want:    MapLocation{},
+			want:    location.MapLocation{},
 			wantErr: true,
 		},
 	}
@@ -263,12 +196,12 @@ func TestLabyrinthEnvironment_getPosition1(t *testing.T) {
 func TestMapEnvironment_lookAround(t *testing.T) {
 	type fields struct {
 		labyrinthProperties     MapProperties
-		userLabyrinthLocation   MapLocation
-		npcLabyrinthLocation    MapLocation
+		userLabyrinthLocation   location.MapLocation
+		npcLabyrinthLocation    location.MapLocation
 		itemLabyrinthProperties items.ItemLabyrinthProperties
 	}
 	type args struct {
-		location MapLocation
+		location location.MapLocation
 	}
 	tests := []struct {
 		name   string
@@ -278,73 +211,52 @@ func TestMapEnvironment_lookAround(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{
-			name: "around lookup: wall",
+			name: "around lookup: no wall",
 			fields: fields{
 				labyrinthProperties: MapProperties{
-					mapLongitude: map[int]entity.Entity{
-						1: entity.Wall,
-						2: entity.Pass,
-						3: entity.Pass,
-						4: entity.Pass,
-						5: entity.Pass,
-					},
-					mapLatitude: map[int]entity.Entity{
-						1: entity.Wall,
-						2: entity.Pass,
-						3: entity.Pass,
-						4: entity.Pass,
-						5: entity.Pass,
-					}},
-				userLabyrinthLocation:   MapLocation{1, 1},
-				npcLabyrinthLocation:    MapLocation{5, 5},
+					GridSize:      25,
+					EntitiesOnMap: map[location.MapLocation]entity.Entity{}},
+				userLabyrinthLocation:   location.MapLocation{X: 1, Y: 1},
+				npcLabyrinthLocation:    location.MapLocation{X: 5, Y: 5},
 				itemLabyrinthProperties: items.ItemLabyrinthProperties{Items: nil},
 			},
-			args: args{location: MapLocation{3, 3}},
+			args: args{location: location.MapLocation{X: 2, Y: 2}},
 			want: MapAroundEntities{
-				Position: MapLocation{3, 3},
-				nEntity:  entity.Pass,
-				neEntity: entity.Pass,
-				nwEntity: entity.Pass,
-				eEntity:  entity.Pass,
-				sEntity:  entity.Pass,
-				seEntity: entity.Pass,
-				swEntity: entity.Pass,
-				wEntity:  entity.Pass,
+				Position: location.MapLocation{X: 2, Y: 2},
+				nEntity:  entity.Entity{Class: entity.PassType, IsBarrier: false, Location: location.MapLocation{X: 2, Y: 3}},
+				neEntity: entity.Entity{Class: entity.PassType, IsBarrier: false, Location: location.MapLocation{X: 3, Y: 3}},
+				eEntity:  entity.Entity{Class: entity.PassType, IsBarrier: false, Location: location.MapLocation{X: 3, Y: 2}},
+				seEntity: entity.Entity{Class: entity.PassType, IsBarrier: false, Location: location.MapLocation{X: 3, Y: 1}},
+				sEntity:  entity.Entity{Class: entity.PassType, IsBarrier: false, Location: location.MapLocation{X: 2, Y: 1}},
+				swEntity: entity.Entity{Class: entity.PassType, IsBarrier: false, Location: location.MapLocation{X: 1, Y: 1}},
+				wEntity:  entity.Entity{Class: entity.PassType, IsBarrier: false, Location: location.MapLocation{X: 1, Y: 2}},
+				nwEntity: entity.Entity{Class: entity.PassType, IsBarrier: false, Location: location.MapLocation{X: 1, Y: 3}},
 			},
 		},
 		{
-			name: "around lookup: nw & n is wall",
+			name: "around lookup: wall from south ",
 			fields: fields{
 				labyrinthProperties: MapProperties{
-					mapLongitude: map[int]entity.Entity{
-						1: entity.Wall,
-						2: entity.Wall,
-						3: entity.Pass,
-						4: entity.Pass,
-						5: entity.Pass,
-					},
-					mapLatitude: map[int]entity.Entity{
-						1: entity.Wall,
-						2: entity.Pass,
-						3: entity.Pass,
-						4: entity.Pass,
-						5: entity.Pass,
+					GridSize: 25,
+					EntitiesOnMap: map[location.MapLocation]entity.Entity{
+						location.MapLocation{X: 2, Y: 1}: entity.Entity{Class: entity.WallType, IsBarrier: true, Location: location.MapLocation{X: 2, Y: 1}},
 					}},
-				userLabyrinthLocation:   MapLocation{4, 4},
-				npcLabyrinthLocation:    MapLocation{5, 5},
+				userLabyrinthLocation: location.MapLocation{X: 2, Y: 2},
+				npcLabyrinthLocation:  location.MapLocation{X: 5, Y: 5},
+				//todo store entities ids for check barrier or not
 				itemLabyrinthProperties: items.ItemLabyrinthProperties{Items: nil},
 			},
-			args: args{location: MapLocation{2, 2}},
+			args: args{location: location.MapLocation{X: 2, Y: 2}},
 			want: MapAroundEntities{
-				Position: MapLocation{2, 2},
-				nEntity:  entity.Wall,
-				neEntity: entity.Pass,
-				eEntity:  entity.Pass,
-				seEntity: entity.Pass,
-				sEntity:  entity.Pass,
-				swEntity: entity.Pass,
-				wEntity:  entity.Pass,
-				nwEntity: entity.Wall,
+				Position: location.MapLocation{X: 2, Y: 2},
+				nEntity:  entity.Entity{Class: entity.PassType, IsBarrier: false, Location: location.MapLocation{X: 2, Y: 3}},
+				neEntity: entity.Entity{Class: entity.PassType, IsBarrier: false, Location: location.MapLocation{X: 3, Y: 3}},
+				eEntity:  entity.Entity{Class: entity.PassType, IsBarrier: false, Location: location.MapLocation{X: 3, Y: 2}},
+				seEntity: entity.Entity{Class: entity.PassType, IsBarrier: false, Location: location.MapLocation{X: 3, Y: 1}},
+				sEntity:  entity.Entity{Class: entity.WallType, IsBarrier: true, Location: location.MapLocation{X: 2, Y: 1}},
+				swEntity: entity.Entity{Class: entity.PassType, IsBarrier: false, Location: location.MapLocation{X: 1, Y: 1}},
+				wEntity:  entity.Entity{Class: entity.PassType, IsBarrier: false, Location: location.MapLocation{X: 1, Y: 2}},
+				nwEntity: entity.Entity{Class: entity.PassType, IsBarrier: false, Location: location.MapLocation{X: 1, Y: 3}},
 			},
 		},
 	}
@@ -356,8 +268,67 @@ func TestMapEnvironment_lookAround(t *testing.T) {
 				npcLabyrinthLocation:    tt.fields.npcLabyrinthLocation,
 				itemLabyrinthProperties: tt.fields.itemLabyrinthProperties,
 			}
+
+			m.labyrinthProperties.fillEmptyLocation()
 			if got := m.lookAround(tt.args.location); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("lookAround() = %v, want %v", got, tt.want)
+				t.Errorf("lookAround()\n got\n = %v, \n want\n = %v \n\n", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestMapProperties_fillEmptyLocation(t *testing.T) {
+	type fields struct {
+		GridSize      int
+		EntitiesOnMap map[location.MapLocation]entity.Entity
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   bool
+	}{
+		// TODO: Add test cases.
+		{
+			name: "fill empty location paths",
+			fields: fields{
+				GridSize: 25,
+				EntitiesOnMap: map[location.MapLocation]entity.Entity{
+					location.MapLocation{X: 1, Y: 1}: entity.WallEntity,
+					location.MapLocation{X: 1, Y: 2}: entity.WallEntity,
+					location.MapLocation{X: 1, Y: 3}: entity.WallEntity,
+					location.MapLocation{X: 1, Y: 4}: entity.WallEntity,
+					location.MapLocation{X: 1, Y: 5}: entity.WallEntity,
+				},
+			},
+			want: true,
+		},
+		{
+			name: "wall after filling must be wall",
+			fields: fields{
+				GridSize: 25,
+				EntitiesOnMap: map[location.MapLocation]entity.Entity{
+					location.MapLocation{X: 1, Y: 1}: entity.Entity{Class: entity.WallType, IsBarrier: true, Location: location.MapLocation{X: 1, Y: 1}},
+					location.MapLocation{X: 1, Y: 2}: entity.WallEntity,
+					location.MapLocation{X: 1, Y: 3}: entity.WallEntity,
+					location.MapLocation{X: 1, Y: 4}: entity.WallEntity,
+					location.MapLocation{X: 1, Y: 5}: entity.WallEntity,
+				},
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := &MapProperties{
+				GridSize:      tt.fields.GridSize,
+				EntitiesOnMap: tt.fields.EntitiesOnMap,
+			}
+
+			p.fillEmptyLocation()
+			if tt.want && p.GridSize*p.GridSize != len(p.EntitiesOnMap) {
+				t.Errorf("%v; got %v, want %v", tt.name, p.GridSize, len(p.EntitiesOnMap))
+			} else if !tt.want && p.EntitiesOnMap[location.MapLocation{X: 1, Y: 1}].Class != entity.WallType {
+				t.Errorf("%v; got %v, want %v", tt.name, p.GridSize, len(p.EntitiesOnMap))
 			}
 		})
 	}
